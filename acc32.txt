@@ -1,0 +1,38 @@
+	.data
+input_addr:    .word 0x80
+output_addr:   .word 0x84
+const_1: 	   .word 0x1
+number:        .word 0x0
+counter: 	   .word 0x0
+result: 	   .word 0x0
+
+	.text
+_start:
+	load_ind 	input_addr // Загружаем данные из адреса, лежащего в метке input_addr
+	store_addr  number //Сохраняем из акк в number
+	store_addr 	counter // Сохраняем из акк в counter
+
+loop:
+	load_addr 	number // Загрузка 0x0 в 16-сс
+	rem 		counter // Нахождение остатка от деления знач. из акк на counter
+	beqz 		increase_result
+dec_counter:
+    load_addr	counter
+	sub			const_1 // Уменьшаем 1
+	beqz		write_output	//Если 0, то заканчиваем
+	store_addr	counter // Новое число сохраняем 
+	jmp 		loop
+	
+	
+increase_result:
+	load_addr	result//Загружаем result в акк
+	add			const_1 //Прибавляем к нему const_1
+	store_addr	result // загружаем в result
+	jmp			dec_counter //прыгаем 
+
+
+	
+write_output:
+	load_addr	result
+	store_ind 	output_addr
+	halt

@@ -1,0 +1,38 @@
+.data
+input_addr:    .word 0x80
+output_addr:   .word 0x84
+alligment:     .word '＼(≧▽≦)／_＼(≧▽≦)／_＼(≧▽≦)／_＼(≧▽≦)／_' //Предположительно alligment помогает предатвратить наложение .data на .text
+// Он используется, чтобы сделать некое раздление в памяти между данными из .data и .text, что предатвращает наложение данных из этих секций
+total:    	   .word 0x0
+
+	.text
+_start:
+	@p input_addr b!
+	@b
+	
+loop:
+	dup
+	lit 1 and
+	if even_number
+dec_counter:
+	lit -1 +
+	dup
+	if write_output
+	loop ;
+
+
+even_number:
+	dup
+	@p total
+	+
+	!p total
+	dec_counter ;
+	
+write_output:
+	@p output_addr b!
+	@p total 
+	!b
+	
+end:
+	halt
+	

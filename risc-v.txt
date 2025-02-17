@@ -1,0 +1,121 @@
+ .data
+
+input_addr:		.word 0x80
+output_addr:	.word 0x84
+part_one:       .byte 'What is your name?\n\0'
+part_two:		.byte 'Hello, \0'
+users_input:	.byte '________________________________'
+part_four:		.byte '!\n\0'
+
+    .text
+
+_start:
+    addi 	t0, t0, output_addr ; Кладем в t0 адрес регистра выхлодных данных, каждый раз нужно обнулять
+	
+	lw 	 	t0, 0(t0)			 ; t0 -- output_addr, 0 -  означает, что к значению из регистра t0 добавляется 0. Если 4(t0), то к значению регистра t0 добавляем к 4
+	
+	li		t5, 10				 ; 10 const
+	li 		t6, 255				 ; 0xFF const
+	
+	
+print_p1:
+	addi	t1, t1, part_one	 ; t1 -- ptr (Печать первой строки )
+
+
+while1: ; Считываем первую  строку
+	lw      t2, 0(t1)		  	 ; read char
+	and 	t2, t2, t6 ; Для считывания по 8 бит
+	beqz	t2, read_name       ; terminator zero
+	
+    sb      t2, 0(t0) ; сохраняем младшие 8 бит
+
+    addi    t1, t1, 1            ; ptr++
+
+    j 		while1
+
+
+read_name:
+    addi 	t3, t3, input_addr
+	
+	lw 	 	t3, 0(t3)			 ; t3 -- input_addr	
+	
+	li		t1, 0
+	addi	t1, t1, users_input
+	
+while_input:
+	lw      t2, 0(t3)		  	 ; read char
+	and 	t2, t2, t6
+	
+	xor 	t4, t2, t5			 ; t4 = char ^ 10 - проверка, что конец \n. Если да, то значение 0
+	beqz	t4, put_null      	 ; newline symbol
+	
+    sb      t2, 0(t1)
+
+    addi    t1, t1, 1            ; ptr++
+
+    j 		while_input
+	
+put_null:
+	li		t2, 0
+	sb		t2, 0(t1) 
+	
+	j		print_p2
+	
+	
+	
+
+
+
+print_p2:
+	li 		t1, 0
+	addi	t1, t1, part_two	 ; t1 -- ptr
+
+while2:
+	lw      t2, 0(t1)		  	 ; read char записываем в t2 без смещения
+	and 	t2, t2, t6
+	beqz	t2, print_name       ; terminator zero
+	
+    sb      t2, 0(t0)
+
+    addi    t1, t1, 1            ; ptr++
+
+    j 		while2
+
+
+
+
+print_name:
+	li      t1, 0
+	addi	t1, t1, users_input	 ; t1 -- ptr
+	
+while3:
+	lw      t2, 0(t1)		  	 ; read char
+	and 	t2, t2, t6
+	beqz	t2, print_p4         ; terminator zero
+	
+    sb      t2, 0(t0)
+
+    addi    t1, t1, 1            ; ptr++
+
+    j 		while3
+
+
+print_p4:
+	li		t1, 0
+	addi	t1, t1, part_four	 ; t1 -- ptr
+
+while4:
+	lw      t2, 0(t1)		  	 ; read char
+	and 	t2, t2, t6
+	beqz	t2, end      		 ; terminator zero
+	
+    sb      t2, 0(t0)
+
+    addi    t1, t1, 1            ; ptr++
+
+    j 		while4
+
+
+
+end:
+	halt 
